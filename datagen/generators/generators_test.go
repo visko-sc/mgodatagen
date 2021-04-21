@@ -48,6 +48,7 @@ func TestIsDocumentCorrect(t *testing.T) {
 				Sk int32 `bson:"s-k"`
 			} `bson:"sub-ob"`
 		} `bson:"object"`
+		StringFromParts string `bson:"stringFromParts"`
 	}
 
 	fullDocumentTests := []struct {
@@ -424,9 +425,32 @@ func TestNewGenerator(t *testing.T) {
 			name: "max distinct value > coll.Count",
 			config: generators.Config{
 				Type:             generators.TypePosition,
-				MaxDistinctValue: 101},
+				MaxDistinctValue: 101,
+			},
 			correct: true,
 			version: []int{4},
+		},
+		{
+			name: "stringFromParts generator with no generators",
+			config: generators.Config{
+				Type: generators.TypeStringFromParts,
+			},
+			correct: false,
+			version: []int{3, 6},
+		},
+		{
+			name: "stringFromParts generator with invalid generator",
+			config: generators.Config{
+				Type: generators.TypeStringFromParts,
+				Parts: []generators.Config{
+					{
+						Type:      generators.TypeString,
+						MinLength: -1,
+					},
+				},
+			},
+			correct: false,
+			version: []int{3, 6},
 		},
 	}
 	// all possible faker methods
@@ -482,16 +506,16 @@ func TestNewGenerator(t *testing.T) {
 		generators.MethodEmojiCategory,
 		generators.MethodEmojiDescription,
 		generators.MethodEmojiTag,
-		generators.MethodExtension,
+		generators.MethodFileExtension,
 		generators.MethodFarmAnimal,
 		generators.MethodFirefoxUserAgent,
 		generators.MethodFirstName,
-		generators.MethodFuelType,
+		generators.MethodCarFuelType,
 		generators.MethodGender,
 		generators.MethodHTTPMethod,
 		generators.MethodHackerAbbreviation,
 		generators.MethodHackerAdjective,
-		generators.MethodHackerIngverb,
+		generators.MethodHackeringVerb,
 		generators.MethodHackerNoun,
 		generators.MethodHackerPhrase,
 		generators.MethodHackerVerb,
@@ -507,7 +531,7 @@ func TestNewGenerator(t *testing.T) {
 		generators.MethodLastName,
 		generators.MethodLetter,
 		generators.MethodMacAddress,
-		generators.MethodMimeType,
+		generators.MethodFileMimeType,
 		generators.MethodMonth,
 		generators.MethodName,
 		generators.MethodNamePrefix,
@@ -533,11 +557,11 @@ func TestNewGenerator(t *testing.T) {
 		generators.MethodTimeZone,
 		generators.MethodTimeZoneAbv,
 		generators.MethodTimeZoneFull,
-		generators.MethodTransmissionGearType,
+		generators.MethodCarTransmissionType,
 		generators.MethodURL,
 		generators.MethodUserAgent,
 		generators.MethodUsername,
-		generators.MethodVehicleType,
+		generators.MethodCarType,
 		generators.MethodWeekDay,
 		generators.MethodWord,
 		generators.MethodZip,
@@ -644,7 +668,7 @@ func loadCollConfig(t *testing.T, filename string) []map[string]generators.Confi
 
 func BenchmarkGeneratorAll(b *testing.B) {
 
-	contentList := loadCollConfig(nil, "ref.json")
+	contentList := loadCollConfig(nil, "part.json")
 
 	ci := generators.NewCollInfo(1000, []int{3, 2}, defaultSeed, map[int][][]byte{}, map[int]bsontype.Type{})
 	docGenerator, err := ci.NewDocumentGenerator(contentList[0])
