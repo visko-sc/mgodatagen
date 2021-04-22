@@ -134,6 +134,7 @@ const (
 	TypeBinary          = "binary"
 	TypeDate            = "date"
 	TypeUUID            = "uuid"
+	TypeUUIDBinary      = "uuidBinary"
 	TypeFaker           = "faker"
 	TypeStringFromParts = "stringFromParts"
 )
@@ -262,6 +263,7 @@ var mapTypes = map[string]bsontype.Type{
 	TypeBinary:          bson.TypeBinary,
 	TypeDate:            bson.TypeDateTime,
 	TypeUUID:            bson.TypeString,
+	TypeUUIDBinary:      bson.TypeBinary,
 	TypeFaker:           bson.TypeString,
 	TypeStringFromParts: bson.TypeString,
 
@@ -534,6 +536,9 @@ func (ci *CollInfo) newGenerator(buffer *DocBuffer, key string, config *Config) 
 
 	case TypeUUID:
 		return newUUIDGenerator(base)
+
+	case TypeUUIDBinary:
+		return newUUIDBinaryGenerator(base)
 
 	case TypeFaker:
 		return newFakerGenerator(config, base)
